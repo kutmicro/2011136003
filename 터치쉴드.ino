@@ -1,52 +1,40 @@
-/*Copyright (c) 2010 bildr community
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-*/
+/*
+ * 터치쉴드 mpr121은 아두이노와 I2C(Inter Integrated Circle) 통신방식을 사용
+ * I2C란 복수개의 슬레이브 장치가 복수개의 마스터 장치와 통신하기 위한 프로토콜
+ * 여기서는 1개의 마스터(아두이노)가 다수의 슬레이브(mpr121의 터치센서)를 제어하는 방식
+ * 데이터 전송 및 제어를 하기 위해 아두이노 기본 라이브러리인 Wire.h 헤더파일을 사용
+ * 아두이노에서 I2C 통신을 쉽게 사용하기 위해 'Wire'라는 객체를 제공하는데 I2C 통신을 위한 핀으로 SDA, SCL핀을 하나씩 제공
+ */
 
 #include "mpr121.h"
 #include <Wire.h>
 
-int irqpin = 2;  // Digital 2
-boolean touchStates[12]; //to keep track of the previous touch states 
+int irqpin = 2;  // 터치쉴드에 연결되는 아두이노 2번 단자
+boolean touchStates[12]; // 터치쉴드에 있는 총 12개의 터치센서
 
 void setup(){
-  pinMode(irqpin, INPUT);
-  digitalWrite(irqpin, HIGH); //enable pullup resistor
+  pinMode(irqpin, INPUT);     // 아두이노 2번 단자에 연결되어있는 터치쉴드를 입력으로 설정
+  digitalWrite(irqpin, HIGH); // 2번 단자를 항상 HIGH로 설정 - pull up 저항에서 동작되도록
   
-  Serial.begin(9600);
-  Wire.begin(); //i2c통신을 초기화하고 활성화해줌
+  Serial.begin(9600); // 시리얼 통신의 속도를 9600bs(초당 받는 비트의 수)로 설정  
+  Wire.begin();       // I2C 통신을 초기화하고 활성화해줌
 
-  mpr121_setup();
+  mpr121_setup();     // 터치센서마다 어드레스 초기화
 }
 
 void loop(){
-  readTouchInputs();
+  readTouchInputs();  // 터치센서의 입력에 따라 메시지를 출력
 }
 
 
 void readTouchInputs(){
-  if(!checkInterrupt()){
+
+  if(!checkInterrupt()){ // irqpin의 입력을 읽는다. pull up 저항이라고 가정하고 짠 코드이므로 값을 반전시킴
     
-    //read the touch state from the MPR121
-    Wire.requestFrom(0x5A,2); //슬레이브로부터 데이터를 요청(슬레이브 주소, 요청할 바이트수)
     
-    byte LSB = Wire.read(); //데이터를 읽어옴
+    Wire.requestFrom(0x5A,2); // mpr121의 어드레스에 2만큼의 데이터를 요청
+    
+    byte LSB = Wire.read();   // 데이터를 읽어옴
     byte MSB = Wire.read();
     
     uint16_t touched = ((MSB << 8) | LSB); //16bits that make up the touch states
@@ -55,8 +43,8 @@ void readTouchInputs(){
     for (int i=0; i < 12; i++){  // Check what electrodes were pressed
       if(touched & (1<<i)){
       
-        if(touchStates[i] == 0){
-          //pin i was just touched
+        if(touchStates[i] == 0){   // 입력이 들어왔을 때
+          // 핀 번호의 입력 안내문구 출력
           Serial.print("pin ");
           Serial.print(i);
           Serial.println(" was just touched");
@@ -68,7 +56,8 @@ void readTouchInputs(){
         touchStates[i] = 1;      
       }
       else{
-        if(touchStates[i] == 1){
+        if(touchStates[i] == 1){  // 입력이 들어오지 않을 때
+          // 입력이 중단되었다는 문구 출력
           Serial.print("pin ");
           Serial.print(i);
           Serial.println(" is no longer being touched");
@@ -169,7 +158,7 @@ boolean checkInterrupt(void){
 
 void set_register(int address, unsigned char r, unsigned char v){
     Wire.beginTransmission(address); //지정된 주소의 슬레이브에 송신이 시작됨을 알림
-    Wire.write(r); //슬레이브에 데이터를 보냄
+    Wire.write(r);          // 슬레이브에 데이터를 보냄
     Wire.write(v);
-    Wire.endTransmission(); //지정된 주소의 슬레이브에 송신이 끝남.
+    Wire.endTransmission(); // 지정된 주소의 슬레이브에 송신이 끝남.
 }
