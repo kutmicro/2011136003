@@ -8,24 +8,27 @@
  */
  
 #include <SoftwareSerial.h>
-void noteOn(byte channel, byte note, byte attack_velocity);
-void noteOff(byte channel, byte note, byte release_velocity);
-void talkMIDI(byte cmd, byte data1, byte data2);
+void noteOn(byte channel, byte note, byte attack_velocity);     
+void noteOff(byte channel, byte note, byte release_velocity);   
+void talkMIDI(byte cmd, byte data1, byte data2);                
 
 
-#define btn14 12
-#define btn1  11  // 버튼1의 아두이노 핀번호 정의
-#define btn2  10  // 버튼2의 아두이노 핀번호 정의
-#define btn3  9   // 버튼3의 아두이노 핀번호 정의
-#define btn4  8   // 버튼4의 아두이노 핀번호 정의
-#define btn5  7   // 버튼5의 아두이노 핀번호 정의
-#define btn6  6   // 버튼6의 아두이노 핀번호 정의
-#define btn7  5   // 버튼7의 아두이노 핀번호 정의
+
+#define btn1  11  // '도' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn2  10  // '레' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn3  9   // '미' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn4  8   // '파' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn5  7   // '솔' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn6  6   // '라' 음계를 출력하는 버튼의 아두이노 핀번호 정의
+#define btn7  5   // '시' 음계를 출력하는 버튼의 아두이노 핀번호 정의
 // 3:midi rx , 4:midi reset  아두이노 핀 3번 4번은 이미 사용중
 #define btn8  2   // 버튼8의 아두이노 핀번호 정의 
                   //(SoftSerial에서 Rx핀으로 선언되지만 재 세팅 후 버튼용으로 사용)
-#define btn9 A5   // 버튼9의 아두이노 핀번호 정의
-#define btn10 A4  // 버튼10의 아두이노 핀번호 정의
+#define btn14 12  // 녹음 버튼
+
+                  
+#define btn9 A5   // 라이브러리 변경 버튼의 아두이노 핀번호 정의
+#define btn10 A4  // 의 아두이노 핀번호 정의
 #define btn11 A3  // 버튼11의 아두이노 핀번호 정의
 #define btn12 A2  // 버튼12의 아두이노 핀번호 정의
 #define btn13 A1  // 버튼13의 아두이노 핀번호 정의
@@ -81,8 +84,6 @@ int bn4 = 65; //버튼4의  note(음계)  가령 "파"
 int bn5 = 67; //버튼5의  note(음계)  가령 "솔"
 int bn6 = 69; //버튼6의  note(음계)  가령 "라"
 int bn7 = 71; //버튼7의  note(음계)  가령 "시"
-
-int bn8 = 72; //버튼8의  note(음계)  가령 "도~"
 
 byte byteData;
 
